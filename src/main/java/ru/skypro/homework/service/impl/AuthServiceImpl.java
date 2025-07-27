@@ -44,4 +44,13 @@ public class AuthServiceImpl implements AuthService {
         return true;
     }
 
+    @Override
+    public boolean changePassword(String username, String currentPassword, String newPassword) {
+        if (!manager.userExists(username)){
+            return false;
+        }
+
+
+    }
+
 }
