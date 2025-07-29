@@ -6,7 +6,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.Register;
-import ru.skypro.homework.dto.UserDTO;
 import ru.skypro.homework.service.AuthService;
 
 @Service
@@ -44,32 +43,4 @@ public class AuthServiceImpl implements AuthService {
                         .build());
         return true;
     }
-
-    @Override
-    public boolean changePassword(String username, String currentPassword, String newPassword) {
-
-        if (!manager.userExists(username)) {
-            return false;
-        }
-
-        UserDetails userDetails = manager.loadUserByUsername(username);
-        if (!encoder.matches(currentPassword, userDetails.getPassword())) {
-            return false;
-        }
-
-        manager.changePassword(username, encoder.encode(newPassword));
-        return true;
-    }
-
-    @Override
-    public UserDTO getUser(String username) {
-
-        UserDetails userDetails = manager.loadUserByUsername(username);
-
-        UserDTO user = new UserDTO();
-        user.setUsername(userDetails.getUsername());
-
-        return user;
-    }
-
 }
