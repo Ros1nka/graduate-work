@@ -42,14 +42,10 @@ public class WebSecurityConfig {
         http.csrf()
                 .disable()
                 .authorizeHttpRequests(
-                        authorization ->
-                                authorization
-                                        .mvcMatchers(AUTH_WHITELIST)
-                                        .permitAll()
-                                        .mvcMatchers("/ads/**", "/users/**")
-                                        .authenticated())
-                .cors()
-                .and()
+                        authorization -> authorization
+                                .requestMatchers(AUTH_WHITELIST).permitAll()
+                                .requestMatchers("/ads/**", "/users/**").authenticated())
+                .cors(withDefaults())
                 .httpBasic(withDefaults());
         return http.build();
     }
