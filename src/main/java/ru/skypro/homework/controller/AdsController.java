@@ -12,6 +12,7 @@ import ru.skypro.homework.dto.*;
 import ru.skypro.homework.exception.AdNotFoundException;
 import ru.skypro.homework.exception.ForbiddenException;
 import ru.skypro.homework.service.AdsService;
+import ru.skypro.homework.service.CommentService;
 
 import java.util.List;
 
@@ -22,10 +23,17 @@ public class AdsController {
 
     private final AdsService adsService;
 
+    private final CommentService commentService;
+
     //'Получение всех объявлений
     @GetMapping()
-    public ResponseEntity<List<Ads>> getAllAds() {
-        return ResponseEntity.ok(adsService.getAllAds());
+    public ResponseEntity<Ads> getAllAds(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Ads result = adsService.getAllAds(auth.getName());
+        return ResponseEntity.ok(result);
     }
 
     //Добавление объявления
@@ -36,6 +44,7 @@ public class AdsController {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         Ad createdAd = adsService.createAd(properties, image, auth.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAd);
     }
@@ -49,7 +58,7 @@ public class AdsController {
         }
 
         try {
-            Comments comments = adsService.getComments(id);
+            Comments comments = commentService.getComments(id);
             return ResponseEntity.ok(comments);
         } catch (AdNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -66,7 +75,7 @@ public class AdsController {
         }
 
         try {
-            Comment createdComment = adsService.addComment(id, comment, auth.getName());
+            Comment createdComment = commentService.addComment(id, comment, auth.getName());
             return ResponseEntity.ok(createdComment);
         } catch (AdNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -136,7 +145,7 @@ public class AdsController {
         }
 
         try {
-            adsService.deleteComment(adId, commentId, auth.getName());
+            commentService.deleteComment(adId, commentId, auth.getName());
             return ResponseEntity.ok().build();
         } catch (AdNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -156,7 +165,7 @@ public class AdsController {
         }
 
         try {
-            Comment comment = adsService.updateComment(adId, commentId, updatedComment, auth.getName());
+            Comment comment = commentService.updateComment(adId, commentId, updatedComment, auth.getName());
             return ResponseEntity.ok().build();
         } catch (AdNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -178,7 +187,9 @@ public class AdsController {
 
     //Обновление картинки объявления
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> updateImage(@PathVariable int id, @RequestParam MultipartFile image, Authentication auth) {
+    public ResponseEntity<byte[]> updateImage(@PathVariable int id,
+                                              @RequestParam MultipartFile image,
+                                              Authentication auth) {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -193,6 +204,5 @@ public class AdsController {
         } catch (ForbiddenException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
     }
 }

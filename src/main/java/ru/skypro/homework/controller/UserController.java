@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getUser(@RequestBody Authentication auth) {
+    public ResponseEntity<UserDTO> getUser(Authentication auth) {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -62,8 +62,8 @@ public class UserController {
     }
 
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> updateUserImage(@RequestBody Authentication auth,
-                                                @RequestParam MultipartFile image) throws IOException {
+    public ResponseEntity<?> updateUserImage(Authentication auth,
+                                             @RequestParam MultipartFile image) throws IOException {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
