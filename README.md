@@ -134,7 +134,9 @@ Maven
 
 properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/graduate
+
 spring.datasource.username=
+
 spring.datasource.password=
 
 ### Сборка и запуск:
