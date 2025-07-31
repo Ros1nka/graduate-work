@@ -12,7 +12,8 @@ public interface CommentService {
 
     Comment addComment(int id, CreateOrUpdateComment updateComment, String username);
 
-    void deleteComment(int adId, int commentId, String username) throws AdNotFoundException, ForbiddenException;
+    void deleteComment(int adId, int commentId, String username)
+            throws AdNotFoundException, ForbiddenException;
 
     Comment updateComment(int adId, int commentId, CreateOrUpdateComment updatedComment, String username)
             throws AdNotFoundException, ForbiddenException;

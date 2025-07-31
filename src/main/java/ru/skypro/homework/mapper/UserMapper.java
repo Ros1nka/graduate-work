@@ -1,9 +1,11 @@
 package ru.skypro.homework.mapper;
 
+import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.UserDTO;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.model.UserEntity;
 
+@Component
 public class UserMapper {
 
 
@@ -17,7 +19,7 @@ public class UserMapper {
         dto.setLastName(entity.getLastName());
         dto.setPhone(entity.getPhone());
         dto.setRole(entity.getRole());
-        dto.setImage("/image/users/" + entity.getId());
+        dto.setImage(entity.getImage());
 
         return dto;
     }

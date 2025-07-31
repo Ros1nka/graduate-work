@@ -44,8 +44,20 @@ public class UserEntity {
     private String image;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    private List<Ads> result;
+    private List<AdEntity> result;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    private List<Comment> comments;
+    private List<CommentEntity> comments;
+
+    @Getter
+    private boolean accountNonExpired = true;
+
+    @Getter
+    private boolean accountNonLocked = true;
+
+    @Getter
+    private boolean credentialsNonExpired = true;
+
+    @Getter
+    private boolean enabled = true;
 }

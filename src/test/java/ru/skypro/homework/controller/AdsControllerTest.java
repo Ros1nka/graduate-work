@@ -74,7 +74,7 @@ public class AdsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testUser", roles = {"USER"})
+    @WithMockUser(username = "testUser")
     void addAd_ShouldReturnCreatedAd() throws Exception {
 
         CreateOrUpdateAd properties = new CreateOrUpdateAd("test", 100, "description");
@@ -96,7 +96,7 @@ public class AdsControllerTest {
                         .param("title", properties.getTitle())
                         .param("price", String.valueOf(properties.getPrice()))
                         .param("description", properties.getDescription())
-                        .with(csrf()) // Добавляем CSRF токен
+                        .with(csrf())
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

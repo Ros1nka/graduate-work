@@ -5,20 +5,25 @@ import ru.skypro.homework.dto.*;
 import ru.skypro.homework.exception.AdNotFoundException;
 import ru.skypro.homework.exception.ForbiddenException;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface AdsService {
     Ads getAllAds(String username);
 
-    Ad createAd(CreateOrUpdateAd properties, MultipartFile image, String username);
+    Ad createAd(CreateOrUpdateAd properties, MultipartFile image, String username)
+            throws IOException;
 
     ExtendedAd getAds(int AdId);
 
-    void deleteAd(int id, String username) throws AdNotFoundException, ForbiddenException;
+    void deleteAd(int id, String username)
+            throws AdNotFoundException, ForbiddenException;
 
-    Ad updateAd(int id, CreateOrUpdateAd updatedAd, String username) throws AdNotFoundException, ForbiddenException;
+    Ad updateAd(int id, CreateOrUpdateAd updatedAd, String username)
+            throws AdNotFoundException, ForbiddenException;
 
     Ads getAdsByAuthor(String username);
 
-    byte[] updateAdImage(int AdId, MultipartFile image, String username) throws AdNotFoundException, ForbiddenException;
+    byte[] updateAdImage(int AdId, MultipartFile image, String username)
+            throws AdNotFoundException, ForbiddenException, IOException;
 }

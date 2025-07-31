@@ -11,11 +11,7 @@ import java.util.Optional;
 
 public interface AdRepository extends JpaRepository<AdEntity, Integer> {
 
-    List<AdEntity> findAllByAuthor(String name);
-
     List<AdEntity> findAllByAuthorId(int id);
 
-    List<Comment> getCommentsByAdId(int adId);
-
-    Optional<AdEntity> findById(int pk);
+    Optional<AdEntity> findByPk(int pk);
 }

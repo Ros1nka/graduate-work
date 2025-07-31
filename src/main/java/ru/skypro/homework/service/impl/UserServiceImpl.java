@@ -13,32 +13,33 @@ import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.mapper.UserMapper;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Value("${path.images.users}")
+    @Value("${path.images.user}")
     private String imageDir;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final ImageServiceImpl imageServiceImpl;
 
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
-                           UserMapper userMapper) {
+                           UserMapper userMapper,
+                           ImageServiceImpl imageServiceImpl) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.imageServiceImpl = imageServiceImpl;
     }
 
     @Override
     public boolean changePassword(String username, String currentPassword, String newPassword) {
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             return false;
@@ -51,7 +52,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUser(String username) {
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return userMapper.toUserDto(user);
     }
@@ -59,7 +61,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UpdateUser updateUser(String username, UpdateUser updateUser) {
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         user.setFirstName(updateUser.getFirstName());
         user.setLastName(updateUser.getLastName());
@@ -71,11 +74,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserAvatar(String username, MultipartFile image) {
+    public void updateUserAvatar(String username, MultipartFile image)
+            throws IOException {
 
-        UserEntity user = userRepository.findByEmail(username);
+        if (image == null || image.isEmpty()) {
+            throw new IllegalArgumentException("Avatar image cannot be null or empty");
+        }
 
-        user.setImage("");  //TO DO image
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        byte[] imageBytes = imageServiceImpl.uploadAndSaveImage(imageDir, String.valueOf(user.getId()), image);
+
+        user.setImage(imageDir + user.getId() + imageServiceImpl.getFileExtension(image.getOriginalFilename()));
+
         userRepository.save(user);
     }
 }

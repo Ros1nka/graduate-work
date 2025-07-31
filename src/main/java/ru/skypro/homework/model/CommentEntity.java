@@ -22,7 +22,7 @@ public class CommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "pk")
     private int pk;
 
     @Column(nullable = false, length = 64)
@@ -33,7 +33,7 @@ public class CommentEntity {
     private UserEntity author;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ad_id", nullable = false)
+    @JoinColumn(name = "ad_pk", nullable = false)
     private AdEntity ad;
 
     @CreationTimestamp
