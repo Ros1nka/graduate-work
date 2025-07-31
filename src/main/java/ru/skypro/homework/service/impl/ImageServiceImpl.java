@@ -16,9 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
-public class ImageService implements ru.skypro.homework.service.ImageService {
+public class ImageServiceImpl implements ru.skypro.homework.service.ImageService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
 
     @Override
     public byte[] uploadAndSaveImage(String directory, String fileNamePrefix, MultipartFile image)

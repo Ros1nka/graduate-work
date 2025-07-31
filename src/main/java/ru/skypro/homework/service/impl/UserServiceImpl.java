@@ -23,16 +23,16 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    private final ImageService imageService;
+    private final ImageServiceImpl imageServiceImpl;
 
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
                            UserMapper userMapper,
-                           ImageService imageService) {
+                           ImageServiceImpl imageServiceImpl) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
-        this.imageService = imageService;
+        this.imageServiceImpl = imageServiceImpl;
     }
 
     @Override
@@ -84,9 +84,9 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        byte[] imageBytes = imageService.uploadAndSaveImage(imageDir, String.valueOf(user.getId()), image);
+        byte[] imageBytes = imageServiceImpl.uploadAndSaveImage(imageDir, String.valueOf(user.getId()), image);
 
-        user.setImage(imageDir + user.getId() + imageService.getFileExtension(image.getOriginalFilename()));
+        user.setImage(imageDir + user.getId() + imageServiceImpl.getFileExtension(image.getOriginalFilename()));
 
         userRepository.save(user);
     }

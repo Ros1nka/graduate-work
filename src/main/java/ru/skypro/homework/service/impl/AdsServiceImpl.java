@@ -28,17 +28,17 @@ public class AdsServiceImpl implements AdsService {
     private final AdRepository adRepository;
     private final AdMapper adMapper;
     private final UserRepository userRepository;
-    private final ImageService imageService;
+    private final ImageServiceImpl imageServiceImpl;
 
 
     public AdsServiceImpl(AdRepository adRepository,
                           AdMapper adMapper,
                           UserRepository userRepository,
-                          ImageService imageService) {
+                          ImageServiceImpl imageServiceImpl) {
         this.adRepository = adRepository;
         this.adMapper = adMapper;
         this.userRepository = userRepository;
-        this.imageService = imageService;
+        this.imageServiceImpl = imageServiceImpl;
     }
 
     @Override
@@ -67,9 +67,9 @@ public class AdsServiceImpl implements AdsService {
 
         AdEntity savedEntity = adRepository.save(adEntity);
 
-        imageService.uploadAndSaveImage(imageDir, String.valueOf(savedEntity.getPk()), image);
+        imageServiceImpl.uploadAndSaveImage(imageDir, String.valueOf(savedEntity.getPk()), image);
 
-        savedEntity.setImage(imageDir + savedEntity.getPk() + imageService.getFileExtension(image.getOriginalFilename()));
+        savedEntity.setImage(imageDir + savedEntity.getPk() + imageServiceImpl.getFileExtension(image.getOriginalFilename()));
 
         adRepository.save(savedEntity);
 
@@ -141,9 +141,9 @@ public class AdsServiceImpl implements AdsService {
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        byte[] imageBytes = imageService.uploadAndSaveImage(imageDir, String.valueOf(adId), image);
+        byte[] imageBytes = imageServiceImpl.uploadAndSaveImage(imageDir, String.valueOf(adId), image);
 
-        adEntity.setImage(imageDir + adId + imageService.getFileExtension(image.getOriginalFilename()));
+        adEntity.setImage(imageDir + adId + imageServiceImpl.getFileExtension(image.getOriginalFilename()));
         adRepository.save(adEntity);
 
         return imageBytes;
