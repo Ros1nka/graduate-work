@@ -19,7 +19,7 @@ public class AdEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "pk")
     private int pk;
 
     @Column(name = "title", nullable = false, length = 32)
@@ -38,6 +38,6 @@ public class AdEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private UserEntity author;
 
-    @OneToMany(mappedBy = "ad_id", cascade = CascadeType.ALL)
-    private List<Comment> comments;
+    @OneToMany(mappedBy = "ad", cascade = CascadeType.ALL)
+    private List<CommentEntity> comments;
 }

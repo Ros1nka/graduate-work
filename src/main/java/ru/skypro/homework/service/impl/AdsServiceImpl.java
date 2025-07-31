@@ -1,5 +1,8 @@
 package ru.skypro.homework.service.impl;
 
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
@@ -11,7 +14,7 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdsService;
 import ru.skypro.homework.mapper.AdMapper;
-import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.service.ImageService;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,19 +23,23 @@ import java.util.stream.Collectors;
 @Service
 public class AdsServiceImpl implements AdsService {
 
+    @Value("${path.images.ad}")
+    private String imageDir;
+
     private final AdRepository adRepository;
     private final AdMapper adMapper;
-    private final UserService userService;
     private final UserRepository userRepository;
+    private final ImageService imageService;
+
 
     public AdsServiceImpl(AdRepository adRepository,
                           AdMapper adMapper,
-                          UserService userService,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          ImageService imageService) {
         this.adRepository = adRepository;
         this.adMapper = adMapper;
-        this.userService = userService;
         this.userRepository = userRepository;
+        this.imageService = imageService;
     }
 
     @Override
@@ -49,14 +56,22 @@ public class AdsServiceImpl implements AdsService {
         return adsContainer;
     }
 
+    @Transactional
     @Override
-    public Ad createAd(CreateOrUpdateAd properties, MultipartFile image, String username) {
+    public Ad createAd(CreateOrUpdateAd properties, MultipartFile image, String username) throws IOException {
 
-        UserEntity author = userRepository.findByEmail(username);
+        UserEntity author = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         AdEntity adEntity = adMapper.toAdEntity(properties, author);
 
         AdEntity savedEntity = adRepository.save(adEntity);
+
+        imageService.uploadAndSaveImage(imageDir, String.valueOf(savedEntity.getPk()), image);
+
+        savedEntity.setImage(imageDir + savedEntity.getPk() + imageService.getFileExtension(image.getOriginalFilename()));
+
+        adRepository.save(savedEntity);
 
         return adMapper.toAdDto(savedEntity);
     }
@@ -64,7 +79,7 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public ExtendedAd getAds(int adId) {
 
-        AdEntity adEntity = adRepository.findById(adId)
+        AdEntity adEntity = adRepository.findByPk(adId)
                 .orElseThrow(() -> new AdNotFoundException(adId));
 
         return adMapper.toExtendedAdDto(adEntity);
@@ -73,28 +88,24 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public void deleteAd(int adId, String username) throws AdNotFoundException, ForbiddenException {
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        AdEntity adEntity = adRepository.findById(adId)
+        AdEntity adEntity = adRepository.findByPk(adId)
                 .orElseThrow(() -> new AdNotFoundException(adId));
 
-        if (adEntity.getAuthor().getId() != user.getId() && !user.getRole().equals(Role.ADMIN)) {
-            throw new ForbiddenException("You are not allowed to delete this ad");
-        }
         adRepository.delete(adEntity);
     }
 
     @Override
     public Ad updateAd(int adId, CreateOrUpdateAd updatedAd, String username) throws AdNotFoundException, ForbiddenException {
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        AdEntity adEntity = adRepository.findById(adId)
+        AdEntity adEntity = adRepository.findByPk(adId)
                 .orElseThrow(() -> new AdNotFoundException(adId));
 
-        if (adEntity.getAuthor().getId() != (user.getId())) {
-            throw new ForbiddenException("You are not allowed to update this ad");
-        }
         adEntity.setTitle(updatedAd.getTitle());
         adEntity.setPrice(updatedAd.getPrice());
         adEntity.setDescription(updatedAd.getDescription());
@@ -107,7 +118,8 @@ public class AdsServiceImpl implements AdsService {
     @Override
     public Ads getAdsByAuthor(String username) {
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<AdEntity> ads = adRepository.findAllByAuthorId(user.getId());
 
@@ -119,19 +131,30 @@ public class AdsServiceImpl implements AdsService {
     }
 
     @Override
-    public byte[] updateAdImage(int adId, MultipartFile image, String username) throws AdNotFoundException, ForbiddenException {
+    public byte[] updateAdImage(int adId, MultipartFile image, String username) throws AdNotFoundException, ForbiddenException, IOException {
 
-        AdEntity adEntity = adRepository.findById(adId)
+        AdEntity adEntity = adRepository.findByPk(adId)
                 .orElseThrow(() -> new AdNotFoundException(adId));
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (adEntity.getAuthor().getId() != user.getId() && !user.getRole().equals(Role.ADMIN)) {
-            throw new ForbiddenException("You are not allowed to update this ad");
-        }
+        byte[] imageBytes = imageService.uploadAndSaveImage(imageDir, String.valueOf(adId), image);
 
-        adEntity.setImage("");  //TO DO image
+        adEntity.setImage(imageDir + adId + imageService.getFileExtension(image.getOriginalFilename()));
         adRepository.save(adEntity);
-        return null;
+
+        return imageBytes;
+    }
+
+    public boolean isAdAuthorOrAdmin(int adId, String username) {
+
+        AdEntity ad = adRepository.findById(adId)
+                .orElseThrow(() -> new AdNotFoundException(adId));
+
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return ad.getAuthor().getId() == user.getId() || user.getRole() == Role.ADMIN;
     }
 }

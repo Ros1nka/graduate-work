@@ -1,5 +1,7 @@
 package ru.skypro.homework.service.impl;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.Comments;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
@@ -19,6 +21,7 @@ import ru.skypro.homework.service.CommentService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class CommentServiceImpl implements CommentService {
 
     private final AdRepository adRepository;
@@ -39,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comments getComments(int adId) {
 
-        List<CommentEntity> comments = commentRepository.findByAdId(adId);
+        List<CommentEntity> comments = commentRepository.findByAdPk(adId);
 
         List<Comment> result = comments.stream()
                 .map(commentMapper::toCommentDto)
@@ -54,7 +57,8 @@ public class CommentServiceImpl implements CommentService {
         AdEntity ad = adRepository.findById(adId)
                 .orElseThrow(() -> new AdNotFoundException(adId));
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         CommentEntity commentEntity = commentMapper.toEntity(updateComment, user, ad);
 
@@ -66,14 +70,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteComment(int adId, int commentId, String username) throws AdNotFoundException, ForbiddenException {
 
-        CommentEntity comment = commentRepository.findByIdAndAdId(commentId, adId)
+        CommentEntity comment = commentRepository.findByPkAndAdPk(commentId, adId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId));
 
-        UserEntity user = userRepository.findByEmail(username);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (comment.getAuthor().getId() != (user.getId()) && !user.getRole().equals(Role.ADMIN)) {
-            throw new ForbiddenException("You are not allowed to delete this comment");
-        }
         commentRepository.delete(comment);
     }
 
@@ -81,19 +83,26 @@ public class CommentServiceImpl implements CommentService {
     public Comment updateComment(int adId, int commentId, CreateOrUpdateComment updatedComment, String username)
             throws AdNotFoundException, ForbiddenException {
 
-        CommentEntity comment = commentRepository.findByIdAndAdId(commentId, adId)
+        CommentEntity comment = commentRepository.findByPkAndAdPk(commentId, adId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId));
 
-        UserEntity user = userRepository.findByEmail(username);
-
-        if (comment.getAuthor().getId() != (user.getId())) {
-            throw new ForbiddenException("You are not allowed to update this comment");
-        }
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         comment.setText(updatedComment.getText());
 
         CommentEntity updatedCommentEntity = commentRepository.save(comment);
 
         return commentMapper.toCommentDto(updatedCommentEntity);
+    }
+
+    public boolean isCommentAuthorOrAdmin(int commentId, String username) {
+        CommentEntity comment = commentRepository.findByPk(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(commentId));
+
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return comment.getAuthor().getId() == user.getId() || user.getRole() == Role.ADMIN;
     }
 }

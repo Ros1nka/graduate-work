@@ -6,6 +6,8 @@ import ru.skypro.homework.dto.CreateOrUpdateAd;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.model.AdEntity;
 import ru.skypro.homework.model.UserEntity;
+import ru.skypro.homework.service.AdsService;
+import ru.skypro.homework.service.impl.AdsServiceImpl;
 
 @Component
 public class AdMapper {
@@ -36,7 +38,7 @@ public class AdMapper {
         dto.setAuthorLastName(entity.getAuthor().getLastName());
         dto.setDescription(entity.getDescription());
         dto.setEmail(entity.getAuthor().getEmail());
-        dto.setImage("/image/ads/" + entity.getPk());
+        dto.setImage(entity.getImage());
         dto.setPhone(entity.getAuthor().getPhone());
         dto.setPrice(entity.getPrice());
         dto.setTitle(entity.getTitle());
@@ -50,6 +52,7 @@ public class AdMapper {
         }
         AdEntity entity = new AdEntity();
 
+        entity.setAuthor(author);
         entity.setTitle(dto.getTitle());
         entity.setPrice(dto.getPrice());
         entity.setDescription(dto.getDescription());
