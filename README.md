@@ -29,79 +29,62 @@
   - Загрузка аватара (/users/me/image)
 
 3. Работа с объявлениями
-|    Метод    	  Эндпоинт    	Функционал    |
-|---------------------------------------------|
-|GET	/ads	Получение всех объявлений         |
-|---------------------------------------------|
-|POST	/ads	Создание объявления с изображением|
-|---------------------------------------------|
-|GET	/ads/{id}	Просмотр объявления           |
------------------------------------
-|PATCH	/ads/{id}	Обновление объявления|
-|DELETE	/ads/{id}	Удаление объявления|
-|PATCH	/ads/{id}/image	Обновление изображения объявления|
-|GET	/ads/me	Получение своих объявлений|
-5. Комментарии к объявлениям
-Добавление комментариев (/ads/{id}/comments)
 
-Редактирование/удаление комментариев
+| Метод | Эндпоинт| Функционал |
+|-------------|-------------|-------------|
+| GET   | /ads   | Получение всех объявлений    |
+| POST    | /ads    | Создание объявления с изображением    |
+| GET    | /ads/{id}   | Просмотр объявления   |
+| PATCH    | /ads/{id}    |  Обновление объявления   |
+| DELETE    | /ads/{id}    |  Удаление объявления   |
+| PATCH    |  /ads/{id}/image   |  Обновление изображения объявления  |
+| GET    |  /ads/me   |  Получение своих объявлений   |
 
-Проверка прав (только автор или админ)
+
+4. Комментарии к объявлениям
+- Добавление комментариев (/ads/{id}/comments)
+- Редактирование/удаление комментариев
+- Проверка прав (только автор или админ)
 
 5. Дополнительные возможности
-Валидация входных данных
-
-Глобальная обработка исключений
-
-Логирование операций
-
-CORS-фильтр для безопасных跨域-запросов
+- Валидация входных данных
+- Глобальная обработка исключений
+- Логирование операций
+- CORS-фильтр для безопасных跨域-запросов
 
 ## Архитектура Backend
 Слои приложения:
-Controller (REST API endpoints)
-
-AdsController, UserController, AuthController
-
-Service (Бизнес-логика)
-
-AdsServiceImpl, UserServiceImpl, AuthServiceImpl
-
-Repository (Работа с БД)
-
-AdRepository, UserRepository, CommentRepository
-
-DTO (Data Transfer Objects)
-
-Ad, UserDTO, Comment, etc.
-
-Entity (Сущности БД)
-
-AdEntity, UserEntity, CommentEntity
-
+- Controller (REST API endpoints)
+- AdsController, UserController, AuthController
+- Service (Бизнес-логика)
+- AdsServiceImpl, UserServiceImpl, AuthServiceImpl
+- Repository (Работа с БД)
+- AdRepository, UserRepository, CommentRepository
+- DTO (Data Transfer Objects)
+- Ad, UserDTO, Comment, etc.
+- Entity (Сущности БД)
+- AdEntity, UserEntity, CommentEntity
+  
 Особенности реализации:
-Транзакционность (@Transactional)
-
-Разделение прав доступа (@PreAuthorize)
-
-Загрузка файлов (изображений)
-
-Кастомные исключения
-
-Логирование через SLF4J
+- Транзакционность (@Transactional)
+- Разделение прав доступа (@PreAuthorize)
+- Загрузка файлов (изображений)
+- Кастомные исключения
+- Логирование через SLF4J
 
 ## Инфраструктура и развертывание
 Конфигурация:
-Настройки БД и путей в application.properties
-
-Liquibase для управления миграциями
-
-Spring Security Config (WebSecurityConfig)
+- Настройки БД и путей в application.properties
+- Liquibase для управления миграциями
+- Spring Security Config (WebSecurityConfig)
 
 Зависимости (основные):
+
 xml
+
 <dependencies>
-    <!-- Web -->
+  
+      <!-- Web -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
@@ -135,7 +118,9 @@ xml
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
     </dependency>
+    
 </dependencies>
+
 ## Как запустить проект
 Требования:
 
@@ -145,28 +130,19 @@ PostgreSQL
 
 Maven
 
-Настройка БД:
+### Настройка БД:
 
 properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/graduate
-spring.datasource.username=student
-spring.datasource.password=chocolatefrog
-Сборка и запуск:
+spring.datasource.username=
+spring.datasource.password=
+
+### Сборка и запуск:
 
 bash
 mvn clean install
 mvn spring-boot:run
+
 Документация API:
 
 Доступна по адресу: http://localhost:8080/swagger-ui.html
-
-
-## Описание
-Этот проект делает **мир лучше**! Вот его возможности:
-- Запускает ракеты
-- ~~Уничтожает котиков~~ (нет)
-
-## Установка
-```bash
-npm install
-npm start
