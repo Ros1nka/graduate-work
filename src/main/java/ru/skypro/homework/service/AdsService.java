@@ -6,7 +6,6 @@ import ru.skypro.homework.exception.AdNotFoundException;
 import ru.skypro.homework.exception.ForbiddenException;
 
 import java.io.IOException;
-import java.util.List;
 
 public interface AdsService {
     Ads getAllAds(String username);
