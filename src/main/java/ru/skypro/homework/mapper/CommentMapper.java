@@ -1,5 +1,6 @@
 package ru.skypro.homework.mapper;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.CreateOrUpdateComment;
@@ -9,6 +10,9 @@ import ru.skypro.homework.model.UserEntity;
 
 @Component
 public class CommentMapper {
+
+    @Value("${path.images.user}")
+    private String imageDir;
 
     public Comment toCommentDto(CommentEntity entity) {
         if (entity == null) {
@@ -20,7 +24,7 @@ public class CommentMapper {
         dto.setText(entity.getText());
         dto.setAuthor(entity.getAuthor().getId());
         dto.setAuthorFirstName(entity.getAuthor().getFirstName());
-        dto.setAuthorImage("/image/users/" + entity.getAuthor().getId());
+        dto.setAuthorImage(imageDir + entity.getAuthor().getId());
         dto.setCreatedAt((int) entity.getCreatedAt().toEpochMilli());
         return dto;
     }

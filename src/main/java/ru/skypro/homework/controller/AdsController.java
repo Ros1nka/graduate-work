@@ -14,21 +14,22 @@ import ru.skypro.homework.exception.AdNotFoundException;
 import ru.skypro.homework.exception.ForbiddenException;
 import ru.skypro.homework.service.AdsService;
 import ru.skypro.homework.service.CommentService;
+import ru.skypro.homework.service.ImageService;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("/ads")
 public class AdsController {
 
     private final AdsService adsService;
     private final CommentService commentService;
+    private final ImageService imageService;
 
     //'Получение всех объявлений
     @GetMapping()
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Ads> getAllAds(Authentication auth) {
 
         Ads result = adsService.getAllAds(auth.getName());
@@ -37,9 +38,8 @@ public class AdsController {
 
     //Добавление объявления
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Ad> addAd(@RequestParam MultipartFile image,
-                                    @Valid CreateOrUpdateAd properties,
+    public ResponseEntity<Ad> addAd(@RequestPart MultipartFile image,
+                                    @Valid @RequestPart CreateOrUpdateAd properties,
                                     Authentication auth) throws IOException {
 
         Ad createdAd = adsService.createAd(properties, image, auth.getName());
@@ -48,7 +48,6 @@ public class AdsController {
 
     //Получение комментариев объявления
     @GetMapping("/{id}/comments")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Comments> getComments(@PathVariable int id,
                                                 Authentication auth) {
 
@@ -62,7 +61,6 @@ public class AdsController {
 
     //Добавление комментария к объявлению
     @PostMapping("/{id}/comments")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Comment> addComment(@PathVariable int id,
                                               @Valid @RequestBody CreateOrUpdateComment comment,
                                               Authentication auth) {
@@ -77,7 +75,6 @@ public class AdsController {
 
     //Получение информации об объявлении
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ExtendedAd> getAds(@PathVariable int id,
                                              Authentication auth) {
 
@@ -158,7 +155,6 @@ public class AdsController {
 
     //Получение объявлений авторизованного пользователя
     @GetMapping("/me")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Ads> getAdsMe(Authentication auth) {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -188,4 +184,17 @@ public class AdsController {
             return ResponseEntity.status(404).build();
         }
     }
+
+    @GetMapping(value = "/images/{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public ResponseEntity<byte[]> getImage(@PathVariable int id) throws IOException {
+
+        return ResponseEntity.ok(imageService.getAdImage(id));
+    }
+
+    @GetMapping(value = "/images/{filename}/extended", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public ResponseEntity<byte[]> getImageExtended(@PathVariable String filename) throws IOException {
+
+        return ResponseEntity.ok(imageService.getAdImage(filename));
+    }
+
 }

@@ -11,4 +11,12 @@ public interface ImageService {
             throws FilePathException;
 
     String getFileExtension(String filename);
+
+    byte[] getAdImage(int id) throws IOException;
+
+    byte[] getAdImage(String filename) throws IOException;
+
+    byte[] getUserImage(String filename) throws IOException;
+
+    byte[] getUserImage(int id) throws IOException;
 }
