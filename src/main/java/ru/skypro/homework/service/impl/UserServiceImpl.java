@@ -8,7 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.UserDTO;
 import ru.skypro.homework.model.UserEntity;
-import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.service.UserService;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.mapper.UserMapper;
@@ -75,7 +74,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserAvatar(String username, MultipartFile image) throws IOException {
+    public void updateUserAvatar(String username, MultipartFile image)
+            throws IOException {
 
         if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("Avatar image cannot be null or empty");
@@ -87,6 +87,7 @@ public class UserServiceImpl implements UserService {
         byte[] imageBytes = imageService.uploadAndSaveImage(imageDir, String.valueOf(user.getId()), image);
 
         user.setImage(imageDir + user.getId() + imageService.getFileExtension(image.getOriginalFilename()));
+
         userRepository.save(user);
     }
 }

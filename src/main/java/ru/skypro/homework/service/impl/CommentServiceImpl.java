@@ -68,7 +68,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment(int adId, int commentId, String username) throws AdNotFoundException, ForbiddenException {
+    public void deleteComment(int adId, int commentId, String username)
+            throws AdNotFoundException, ForbiddenException {
 
         CommentEntity comment = commentRepository.findByPkAndAdPk(commentId, adId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId));

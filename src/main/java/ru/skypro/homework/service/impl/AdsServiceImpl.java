@@ -14,7 +14,6 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdsService;
 import ru.skypro.homework.mapper.AdMapper;
-import ru.skypro.homework.service.ImageService;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,7 +57,8 @@ public class AdsServiceImpl implements AdsService {
 
     @Transactional
     @Override
-    public Ad createAd(CreateOrUpdateAd properties, MultipartFile image, String username) throws IOException {
+    public Ad createAd(CreateOrUpdateAd properties, MultipartFile image, String username)
+            throws IOException {
 
         UserEntity author = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -98,7 +98,8 @@ public class AdsServiceImpl implements AdsService {
     }
 
     @Override
-    public Ad updateAd(int adId, CreateOrUpdateAd updatedAd, String username) throws AdNotFoundException, ForbiddenException {
+    public Ad updateAd(int adId, CreateOrUpdateAd updatedAd, String username)
+            throws AdNotFoundException, ForbiddenException {
 
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -131,7 +132,8 @@ public class AdsServiceImpl implements AdsService {
     }
 
     @Override
-    public byte[] updateAdImage(int adId, MultipartFile image, String username) throws AdNotFoundException, ForbiddenException, IOException {
+    public byte[] updateAdImage(int adId, MultipartFile image, String username)
+            throws AdNotFoundException, ForbiddenException, IOException {
 
         AdEntity adEntity = adRepository.findByPk(adId)
                 .orElseThrow(() -> new AdNotFoundException(adId));
